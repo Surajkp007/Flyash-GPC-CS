@@ -1,0 +1,58 @@
+import numpy as np
+from sklearn.svm import SVR
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+
+# Define the Firefly Optimization algorithm
+def firefly_optimization(X, y, n_fireflies, max_iterations):
+    # Initialize fireflies randomly
+    fireflies = np.random.rand(n_fireflies, X.shape[1])
+    
+    # Define the fitness function
+    def fitness(firefly):
+        predictions = svr.predict([firefly])
+        return -mean_squared_error(y, predictions)
+    
+    # Main optimization loop
+    for iteration in range(max_iterations):
+        for i in range(n_fireflies):
+            for j in range(n_fireflies):
+                if fitness(fireflies[i]) < fitness(fireflies[j]):
+                    # Move the firefly towards the brighter one
+                    beta0 = 1.0  # Attraction coefficient
+                    beta = beta0 * np.exp(-0.2 * (iteration / max_iterations))
+                    epsilon = np.random.uniform(-1, 1, size=X.shape[1])
+                    fireflies[i] += beta * (fireflies[j] - fireflies[i]) + 0.01 * epsilon
+        
+    # Return the best firefly (solution)
+    best_firefly = fireflies[np.argmax([fitness(firefly) for firefly in fireflies])]
+    return best_firefly
+
+# Load your dataset
+X = ...
+y = ...
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the Support Vector Regressor
+svr = SVR()
+
+# Perform Firefly Optimization to tune the Support Vector Regressor
+optimized_params = firefly_optimization(X_train, y_train, n_fireflies=20, max_iterations=100)
+
+# Set the optimized parameters to the Support Vector Regressor
+svr.set_params(**optimized_params)
+
+# Fit the Support Vector Regressor to the training data
+svr.fit(X_train, y_train)
+
+# Evaluate the model
+predictions = svr.predict(X_test)
+mse = mean_squared_error(y_test, predictions)
+rmse = np.sqrt(mse)
+r2 = svr.score(X_test, y_test)
+
+# Print the evaluation metrics
+print("Root Mean Squared Error (RMSE):", rmse)
+print("Coefficient of Determination (R2):", r2)
