@@ -1,0 +1,66 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+from xgboost import XGBRegressor
+
+# Load your dataset
+X = ...
+y = ...
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Define the Firefly Optimization algorithm
+def firefly_optimization(X, y, regressor):
+    # Initialize the regressor with default parameters
+    model = regressor()
+    
+    # Perform Firefly Optimization to tune the regressor
+    # ...
+    # Firefly Optimization code here
+    # ...
+    
+    # Set the optimized parameters to the regressor
+    # ...
+    # Set optimized parameters code here
+    # ...
+    
+    # Fit the regressor to the training data
+    model.fit(X, y)
+    
+    return model
+
+# Train the individual models using Firefly Optimization
+decision_tree = firefly_optimization(X_train, y_train, DecisionTreeRegressor)
+svr = firefly_optimization(X_train, y_train, SVR)
+xgboost = firefly_optimization(X_train, y_train, XGBRegressor)
+elm = firefly_optimization(X_train, y_train, ExtremeLearningMachine)  # Replace with your own ELM implementation
+
+# Make predictions using the individual models
+dt_predictions = decision_tree.predict(X_test)
+svr_predictions = svr.predict(X_test)
+xgboost_predictions = xgboost.predict(X_test)
+elm_predictions = elm.predict(X_test)
+
+# Create the meta-learner input matrix using the predictions
+meta_learner_input = np.column_stack((dt_predictions, svr_predictions, xgboost_predictions, elm_predictions))
+
+# Define the meta-learner (e.g., Linear Regression, Random Forest, etc.)
+meta_learner = LinearRegression()
+
+# Train the meta-learner using the meta-learner input matrix
+meta_learner.fit(meta_learner_input, y_test)
+
+# Make predictions using the meta-learner
+meta_predictions = meta_learner.predict(meta_learner_input)
+
+# Evaluate the performance of the meta-learner predictions
+mse = mean_squared_error(y_test, meta_predictions)
+rmse = np.sqrt(mse)
+r2 = meta_learner.score(meta_learner_input, y_test)
+
+# Print the evaluation metrics
+print("Root Mean Squared Error (RMSE):", rmse)
+print("Coefficient of Determination (R2):", r2)
